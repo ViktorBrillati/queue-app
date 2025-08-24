@@ -31,17 +31,18 @@ function App() {
     fetchQueue();
   }, []);
 
-  const addName = async () => {
-    if (!name.trim()) return; // prevent empty strings
-    try {
-      await axios.post(`${API_BASE_URL}/queue`, { name });
-      setName("");
-      fetchQueue();
-    } catch (err) {
-      console.error(err);
-      setError("Failed to add name");
-    }
-  };
+ const addName = async () => {
+  if (!name.trim()) return;
+  try {
+    const res = await axios.post(`${API_BASE_URL}/queue`, { name: name.trim() });
+    setQueue(res.data.queue); // <-- must update queue here
+    setName(""); // clear input
+  } catch (err) {
+    console.error("Failed to add name:", err);
+    setError("Failed to add name");
+  }
+};
+
 
   const dequeue = async () => {
     try {
