@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 // Pick backend URL dynamically
-const API_BASE =
-  "https://queue-app-tf66.onrender.com/" || // Provided by Render (or you manually)
+// Pick API base URL
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || // Use env var if set (Render)
   (window.location.hostname === "localhost"
-    ? "http://localhost:8000" // local dev
-    : "http://backend:8000"); // Docker compose internal network
+    ? "http://localhost:8000"       // Local dev
+    : `${window.location.origin.replace(/\/$/, "")}/api`); // Default fallback
+
 
 function App() {
   const [name, setName] = useState("");
@@ -15,7 +17,7 @@ function App() {
 
   const fetchQueue = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/queue`);
+      const response = await axios.get(`${API_BASE_URL}/queue`);
       setQueue(response.data.queue);
       setError(null);
     } catch (err) {
@@ -31,7 +33,7 @@ function App() {
   const addName = async () => {
     if (!name.trim()) return; // prevent empty strings
     try {
-      await axios.post(`${API_BASE}/queue`, { name });
+      await axios.post(`${API_BASE_URL}/queue`, { name });
       setName("");
       fetchQueue();
     } catch (err) {
@@ -42,7 +44,7 @@ function App() {
 
   const dequeue = async () => {
     try {
-      await axios.delete(`${API_BASE}/queue`);
+      await axios.delete(`${API_BASE_URL}/queue`);
       fetchQueue();
     } catch (err) {
       console.error(err);
@@ -52,7 +54,7 @@ function App() {
 
   const clearQueue = async () => {
     try {
-      await axios.delete(`${API_BASE}/queue/clear`);
+      await axios.delete(`${API_BASE_URL}/queue/clear`);
       fetchQueue();
     } catch (err) {
       console.error(err);
