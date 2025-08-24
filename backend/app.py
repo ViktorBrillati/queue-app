@@ -10,11 +10,13 @@ app = FastAPI()
 # -------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://queue-app-1-uywr.onrender.com/"],   # Use ["http://localhost:3000"] in production
+    allow_origins=["https://queue-app-1-uywr.onrender.com", "http://localhost:3000"],   # Use ["http://localhost:3000"] in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+queue = []
 
 # -------------------------
 # Database setup
