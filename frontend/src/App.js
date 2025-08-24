@@ -1,56 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-// Detect backend URL automatically
-const API_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:8000"   // running locally
-    : "http://backend:8000";    // running inside Docker
+// Pick backend URL dynamically
+const API_BASE =
+  process.env.REACT_APP_API_URL || // Provided by Render (or you manually)
+  (window.location.hostname === "localhost"
+    ? "http://localhost:8000" // local dev
+    : "http://backend:8000"); // Docker compose internal network
 
 function App() {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [queue, setQueue] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
 
   const fetchQueue = async () => {
     try {
-      const res = await axios.get(`${API_URL}/queue`);
-      setQueue(res.data.queue);
-      setError('');
+      const response = await axios.get(`${API_BASE}/queue`);
+      setQueue(response.data.queue);
+      setError(null);
     } catch (err) {
-      setError('Failed to fetch queue.');
-    }
-  };
-
-  const addName = async () => {
-    if (!name.trim()) {
-      setError('Name cannot be empty.');
-      return;
-    }
-    try {
-      await axios.post(`${API_URL}/queue`, { name });
-      setName('');
-      fetchQueue();
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to add name.');
-    }
-  };
-
-  const removeName = async () => {
-    try {
-      await axios.delete(`${API_URL}/queue`);
-      fetchQueue();
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to remove name.');
-    }
-  };
-
-  const clearQueue = async () => {
-    try {
-      await axios.delete(`${API_URL}/queue/clear`);
-      fetchQueue();
-    } catch (err) {
-      setError('Failed to clear queue.');
+      console.error(err);
+      setError("Failed to fetch queue");
     }
   };
 
@@ -58,21 +28,59 @@ function App() {
     fetchQueue();
   }, []);
 
+  const addName = async () => {
+    if (!name.trim()) return; // prevent empty strings
+    try {
+      await axios.post(`${API_BASE}/queue`, { name });
+      setName("");
+      fetchQueue();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to add name");
+    }
+  };
+
+  const dequeue = async () => {
+    try {
+      await axios.delete(`${API_BASE}/queue`);
+      fetchQueue();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to dequeue");
+    }
+  };
+
+  const clearQueue = async () => {
+    try {
+      await axios.delete(`${API_BASE}/queue/clear`);
+      fetchQueue();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to clear queue");
+    }
+  };
+
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>FIFO Name Queue</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <input 
-        value={name} 
-        onChange={(e) => setName(e.target.value)} 
-        placeholder="Enter name"
+    <div className="App">
+      <h1>FIFO Queue</h1>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Enter a name"
       />
-      <button onClick={addName}>Add Name</button>
-      <button onClick={removeName}>Remove First</button>
+      <button onClick={addName}>Add</button>
+      <button onClick={dequeue}>Dequeue</button>
       <button onClick={clearQueue}>Clear Queue</button>
+
       <h2>Queue:</h2>
       <ul>
-        {queue.map((n, i) => <li key={i}>{n}</li>)}
+        {queue.map((n, idx) => (
+          <li key={idx}>{n}</li>
+        ))}
       </ul>
     </div>
   );
