@@ -13,16 +13,17 @@ const API_BASE_URL =
 function App() {
   const [name, setName] = useState("");
   const [queue, setQueue] = useState([]);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   const fetchQueue = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/queue`);
-      setQueue(response.data.queue);
+      setQueue(response.data.queue || []);
       setError(null);
     } catch (err) {
       console.error(err);
       setError("Failed to fetch queue");
+      setQueue([]);
     }
   };
 
