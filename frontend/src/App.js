@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Pick backend URL dynamically
 const API_BASE =
-  process.env.REACT_APP_API_URL || // Provided by Render (or you manually)
+  "https://queue-app-tf66.onrender.com/" || // Provided by Render (or you manually)
   (window.location.hostname === "localhost"
     ? "http://localhost:8000" // local dev
     : "http://backend:8000"); // Docker compose internal network
