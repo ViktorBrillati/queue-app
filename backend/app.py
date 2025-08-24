@@ -18,7 +18,7 @@ app.add_middleware(
 
 queue = []
 
-# -------------------------
+
 # Database setup
 # -------------------------
 DB_FILE = "queue.db"
