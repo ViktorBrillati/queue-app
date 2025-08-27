@@ -69,7 +69,7 @@ function App() {
 
   return (
     <div className="App" style={{ padding: "20px", maxWidth: "500px", margin: "auto" }}>
-      <h1>Name Queue</h1>
+      <h1> Free Close Queue</h1>
 
       <div style={{ marginBottom: "10px" }}>
         <input
